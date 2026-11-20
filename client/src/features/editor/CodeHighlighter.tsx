@@ -4,13 +4,15 @@ import React from 'react';
 interface CodeHighlighterProps {
   text?: string;
   type: string;
+  reading?: boolean;
 }
 
 export const CodeHighlighter: React.FC<CodeHighlighterProps> = ({
   text,
   type,
+  reading = false,
 }) => {
-  if (!text) return null;
+  if (text === undefined) return null;
 
   const lines = text.split('\n');
 
@@ -84,6 +86,25 @@ export const CodeHighlighter: React.FC<CodeHighlighterProps> = ({
 
     return <span className="text-catppuccin-text">{line}</span>;
   };
+
+  if (reading) {
+    return (
+      <pre
+        className="markdown-code-pre"
+        tabIndex={0}
+        aria-label={`${type === 'text' ? '' : type + ' '}code block`}
+      >
+        <code>
+          {lines.map((line, i) => (
+            <React.Fragment key={i}>
+              {highlightLine(line, type)}
+              {i < lines.length - 1 ? '\n' : ''}
+            </React.Fragment>
+          ))}
+        </code>
+      </pre>
+    );
+  }
 
   return (
     <div className="font-mono text-sm leading-6">

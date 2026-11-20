@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import { CodeHighlighter } from './CodeHighlighter';
+import { MarkdownCodeBlock } from './MarkdownCodeBlock';
 import gsap from 'gsap';
 
 interface MarkdownViewerProps {
@@ -57,22 +57,13 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
                   }>
                 | undefined;
               const lang =
-                /language-(\w+)/.exec(code?.props.className || '')?.[1] ||
+                /language-([^\s]+)/.exec(code?.props.className || '')?.[1] ||
                 'text';
               const text = String(code?.props.children ?? '').replace(
                 /\n$/,
                 ''
               );
-              return (
-                <div className="not-prose my-4 rounded-lg overflow-hidden border border-catppuccin-surface1">
-                  <div className="bg-catppuccin-mantle px-4 py-2 text-xs text-catppuccin-overlay0 border-b border-catppuccin-surface1">
-                    {lang}
-                  </div>
-                  <div className="p-4 bg-catppuccin-base overflow-x-auto">
-                    <CodeHighlighter text={text} type={lang} />
-                  </div>
-                </div>
-              );
+              return <MarkdownCodeBlock text={text} language={lang} />;
             },
             code({ node, children, ...props }: any) {
               return (
