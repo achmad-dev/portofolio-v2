@@ -6,7 +6,11 @@ description: Pernah kepikiran ga sih, kenapa Docker sekarang jadi lingua franca 
   development. Tapi tau ga?
 date: '2025-12-23'
 category: DevOps & Cloud
-tags: []
+tags:
+- containerization
+- docker
+- containers
+- infrastructure
 source: medium
 source_id: b4b706f41b6f
 original_url: https://medium.com/@moonNight1/eh-belajar-docker-bentaran-yuk-b4b706f41b6f
@@ -16,10 +20,11 @@ cover: https://cdn-images-1.medium.com/max/1024/0*bcRsp52IF7GOnWG2
 tags_override:
 - Docker
 - Containers
+updated: '2025-12-23'
 ---
 # Eh belajar docker bentaran yuk
 
-![Image](https://cdn-images-1.medium.com/max/1024/0*bcRsp52IF7GOnWG2)
+![](https://cdn-images-1.medium.com/max/1024/0*bcRsp52IF7GOnWG2)
 
 Pernah kepikiran ga sih, kenapa Docker sekarang jadi *lingua franca* buat infrastructure? Semenjak kemunculannya, Docker sukses mengubah banyak hal di dunia development. Tapi tau ga? Ternyata di baliknya itu ada *tools* Linux yang sebenernya udah ada sejak lama, loh! Yuk, kita pelajarin bareng-bareng.
 
@@ -31,20 +36,16 @@ Pernah kepikiran ga sih, kenapa Docker sekarang jadi *lingua franca* buat infras
 
 Cara kerjanya gini: Saat kamu masuk ke container, kamu merasa punya PID 1 (*Process ID* 1), punya network sendiri, dan user sendiri. Padahal aslinya di server (*host*), kamu cuma proses kecil biasa dengan ID acak, misal 12345.
 
-*Bayangin kayak kamu pake ****kacamata kuda****. Kamu ada di tengah keramaian (server), tapi kamu cuma bisa lihat apa yang ada di depan mata kamu (container), ga bisa lihat orang lain di sebelah kamu.*
+*Bayangin kayak kamu pake* ***kacamata kuda****. Kamu ada di tengah keramaian (server), tapi kamu cuma bisa lihat apa yang ada di depan mata kamu (container), ga bisa lihat orang lain di sebelah kamu.*
 
 **2. Cgroups / Control Groups (Fitur Isolasi “Jatah”)** Kalau yang ini fitur buatan Google (sekitar tahun 2006) yang kemudian dimasukin ke Kernel Linux.
 
 Cgroups tugasnya membatasi penggunaan *resource*. Docker pake ini buat bilang: “Eh, Container A cuma boleh pake RAM 512MB dan CPU 1 Core ya.” Tanpa Cgroups, satu container bisa rakus makan semua RAM dan bikin server *hang*.
 
-*Bayangin kayak ****jatah makan siang****. Walaupun menunya prasmanan (server resource gede), kamu dikasih piring kecil (Cgroups) jadi ga bisa ambil semua lauk seenaknya.*
+*Bayangin kayak* ***jatah makan siang****. Walaupun menunya prasmanan (server resource gede), kamu dikasih piring kecil (Cgroups) jadi ga bisa ambil semua lauk seenaknya.*
 
 **3. Union File System / OverlayFS (Sistem Layer)** Nah, ini nih yang bikin Docker ringan banget karena dia punya sistem *Layer*.
 
 Bedanya sama VM biasa: kalau di VM kamu copy file 1GB, harddisk berkurang 1GB. Kalau di Docker, dia pake sistem tumpuk (*layer*). Misal kamu punya base image Ubuntu (*Layer 1*), terus install Python (*Layer 2*), Docker ga menduplikasi Ubuntunya. Dia cuma nambahin lapisan tipis “Python” di atasnya.
 
-*Bayangin kayak ****kertas mika transparan**** yang ditumpuk. Gambar dasarnya sama, kamu cuma nambahin coretan di kertas mika baru di atasnya tanpa merusak gambar asli di bawahnya.*
-
----
-
-Published 2025-12-23 · [Read on medium](https://medium.com/@moonNight1/eh-belajar-docker-bentaran-yuk-b4b706f41b6f?source=rss-86218010e568------2)
+*Bayangin kayak* ***kertas mika transparan*** *yang ditumpuk. Gambar dasarnya sama, kamu cuma nambahin coretan di kertas mika baru di atasnya tanpa merusak gambar asli di bawahnya.*
