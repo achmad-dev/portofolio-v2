@@ -1,3 +1,6 @@
+import { readFileSync } from 'node:fs';
+import { routeFile } from '../src/blog/model';
+import { CASE_STUDY, caseStudyHref } from '../src/config/site';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createNoteLinks, resolveNoteLink } from '../src/blog/links';
@@ -19,6 +22,7 @@ draft: false
   'blog/example.md'
 );
 const docs = [
+  { id: CASE_STUDY.fileId, content: '# Case study' },
   {
     id: 'content/about.md',
     content:
@@ -33,6 +37,28 @@ const docs = [
 test('internal navigation resolves index, articles and relative notes across deployment bases', () => {
   for (const base of ['/', '/portfolio/']) {
     const notes = createNoteLinks(docs, [post], base);
+    assert.equal(
+      resolveNoteLink(caseStudyHref(base), 'content/about.md', notes, base),
+      CASE_STUDY.fileId
+    );
+    assert.equal(
+      resolveNoteLink(
+        '/case-studies/ai-ads-workflow-study.md',
+        'content/about.md',
+        notes,
+        base
+      ),
+      CASE_STUDY.fileId
+    );
+    assert.equal(
+      resolveNoteLink(
+        `${base}case-studies/ai-ads-workflow-study.md`,
+        'content/about.md',
+        notes,
+        base
+      ),
+      CASE_STUDY.fileId
+    );
     assert.equal(
       resolveNoteLink('/blog/', 'content/about.md', notes, base),
       'blog-index'
@@ -62,5 +88,20 @@ test('internal navigation resolves index, articles and relative notes across dep
         resolveNoteLink(href, 'content/about.md', notes, base),
         undefined
       );
+  }
+});
+
+test('homepage quick links target the case-study and writing routes', () => {
+  const about = readFileSync(
+    new URL('../src/content/about.md', import.meta.url),
+    'utf8'
+  );
+  for (const label of ['Case Study', 'Writing']) {
+    const href = about.match(new RegExp(`\\[${label}\\]\\(([^)]+)\\)`))?.[1];
+    assert.ok(href);
+    assert.equal(
+      routeFile(href, []),
+      label === 'Case Study' ? CASE_STUDY.fileId : 'blog-index'
+    );
   }
 });

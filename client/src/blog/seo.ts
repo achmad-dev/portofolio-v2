@@ -1,30 +1,42 @@
+import { SITE, CASE_STUDY, caseStudyHref } from '../config/site';
 import type { BlogPost } from './model';
 export function updateSeo(
   post: BlogPost | undefined,
   index: boolean,
-  missing: boolean
+  missing: boolean,
+  caseStudy = false
 ) {
   const base = import.meta.env.BASE_URL;
   const origin =
     import.meta.env.VITE_SITE_URL || 'https://achmadalfazari.my.id';
   const title =
     post?.title ??
-    (missing
-      ? 'Page not found'
-      : index
-        ? 'Writing & Research'
-        : 'Achmad Al Fazari — Portfolio');
+    (caseStudy
+      ? CASE_STUDY.title
+      : missing
+        ? 'Page not found'
+        : index
+          ? 'Writing & Research'
+          : SITE.title);
   const description =
     post?.description ??
-    (index
-      ? 'Articles on engineering, AI, cloud, security and finance.'
-      : 'Achmad Al Fazari — software engineer building backend services, data workflows, and AI integrations.');
+    (caseStudy
+      ? CASE_STUDY.description
+      : index
+        ? 'Articles on engineering, AI, cloud, security and finance.'
+        : SITE.description);
   const url = new URL(
-    post ? `${base}blog/${post.slug}/` : index ? `${base}blog/` : base,
+    post
+      ? `${base}blog/${post.slug}/`
+      : caseStudy
+        ? caseStudyHref(base)
+        : index
+          ? `${base}blog/`
+          : base,
     origin
   ).href;
   const image = post?.cover ?? new URL(`${base}og-preview.jpg`, origin).href;
-  document.title = `${title}${post || index ? ' — Achmad Al Fazari' : ''}`;
+  document.title = `${title}${post || index || caseStudy ? ' — Achmad Al Fazari' : ''}`;
   let canonical = document.querySelector<HTMLLinkElement>(
     'link[rel="canonical"]'
   );

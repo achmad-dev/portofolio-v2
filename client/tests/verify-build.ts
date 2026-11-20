@@ -1,3 +1,4 @@
+import { CASE_STUDY, caseStudyHref, SITE } from '../src/config/site';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
 import { loadPosts } from '../src/blog/model';
@@ -14,6 +15,20 @@ const posts = loadPosts(
 const read = (path: string) =>
   readFileSync(new URL(`../dist/${path}`, import.meta.url), 'utf8');
 const sitemap = read('sitemap.xml');
+const caseHtml = read(`${CASE_STUDY.path}index.html`);
+assert.ok(caseHtml.includes(CASE_STUDY.title));
+assert.ok(caseHtml.includes('Go orchestration'));
+assert.ok(caseHtml.includes(new URL(caseStudyHref(base), origin).href));
+assert.ok(caseHtml.includes(`${base}assets/`));
+assert.ok(caseHtml.includes('name="description"'));
+assert.ok(caseHtml.includes('property="og:title"'));
+assert.ok(caseHtml.includes('name="twitter:title"'));
+assert.equal((caseHtml.match(/<title>/g) || []).length, 1);
+assert.equal((caseHtml.match(/rel="canonical"/g) || []).length, 1);
+assert.ok(sitemap.includes(new URL(caseStudyHref(base), origin).href));
+const home = read('index.html');
+assert.ok(home.includes(SITE.title.replace('&', '&amp;')));
+
 assert.ok(sitemap.includes(new URL(`${base}blog/`, origin).href));
 assert.ok(
   read('robots.txt').includes(new URL(`${base}sitemap.xml`, origin).href)
@@ -44,11 +59,13 @@ for (const forbidden of [
   '/ai/generate',
   'VITE_HMAC_SECRET',
   'localhost:8080',
+  'boot-screen',
+  'boot-progress',
 ])
   assert.ok(
     !scripts.includes(forbidden),
     `Active bundle contains ${forbidden}`
   );
 console.log(
-  `Verified ${posts.length} static article pages, metadata, base paths and inactive chat.`
+  `Verified ${posts.length} static article pages plus the case study, metadata, base paths and inactive chat.`
 );

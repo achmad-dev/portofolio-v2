@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FileSystemProvider, useFileSystem } from '@/context/FileSystemContext';
 import { Sidebar } from '@/features/explorer/Sidebar';
 import { TopBar } from '@/features/layout/TopBar';
@@ -19,9 +19,7 @@ function Workspace() {
     setActiveFileId,
     setIsSidebarOpen,
   } = useFileSystem();
-  const [booting, setBooting] = useState(true);
   const [terminalOpen, setTerminalOpen] = useState(false);
-  const bootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const viewport = window.visualViewport;
@@ -56,45 +54,6 @@ function Workspace() {
       gsap.ticker.remove(tick);
       lenis.destroy();
     };
-  }, []);
-
-  useEffect(() => {
-    const root = bootRef.current;
-    if (!root) {
-      gsap.set('.workspace-sidebar, .workspace-topbar, .workspace-status', {
-        clearProps: 'transform,opacity,visibility',
-      });
-      return;
-    }
-    const animation = gsap.context(() => {
-      gsap
-        .timeline({ onComplete: () => setBooting(false) })
-        .to('.boot-progress', {
-          scaleX: 1,
-          duration: 0.8,
-          ease: 'power2.inOut',
-        })
-        .to(root, { autoAlpha: 0, duration: 0.35, pointerEvents: 'none' })
-        .fromTo(
-          '.workspace-sidebar',
-          { x: -24 },
-          { x: 0, duration: 0.4 },
-          '<'
-        )
-        .fromTo(
-          '.workspace-topbar',
-          { y: -16 },
-          { y: 0, duration: 0.35 },
-          '<'
-        )
-        .fromTo(
-          '.workspace-status',
-          { y: 12 },
-          { y: 0, duration: 0.35 },
-          '<'
-        );
-    }, root.parentElement ?? undefined);
-    return () => animation.revert();
   }, []);
 
   // Keyboard shortcuts
@@ -159,17 +118,6 @@ function Workspace() {
         </div>
         <TerminalBuffer isOpen={terminalOpen} />
       </div>
-      {booting && (
-        <div ref={bootRef} className="boot-screen">
-          <div className="boot-logo">
-            Achmad's Portfolio<span>_</span>
-          </div>
-          <div className="boot-caption">loading workspace</div>
-          <div className="boot-track">
-            <div className="boot-progress" />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

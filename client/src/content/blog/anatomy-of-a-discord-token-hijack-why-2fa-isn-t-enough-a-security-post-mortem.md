@@ -9,9 +9,13 @@ tags: []
 source: medium
 source_id: 602ebeb364e7
 original_url: https://medium.com/@moonNight1/anatomy-of-a-discord-token-hijack-why-2fa-isnt-enough-a-security-post-mortem-602ebeb364e7
-featured: false
+featured: true
 draft: false
 cover: https://cdn-images-1.medium.com/max/650/0*-5f-Cr1FG2yggJjM.jpeg
+tags_override:
+- Application Security
+- Supply Chain Security
+- Incident Response
 ---
 # Anatomy of a Discord Token Hijack: Why 2FA Isn’t Enough (A Security Post-Mortem)
 

@@ -1,3 +1,4 @@
+import { CASE_STUDY, caseStudyHref } from '../src/config/site';
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync } from 'node:fs';
@@ -29,6 +30,9 @@ test('validation rejects missing/invalid metadata', () => {
     raw({ date: '2026-02-30' }),
     raw({ slug: '../bad' }),
     raw({ tags: 'Rust' }),
+    raw({ tags_override: 'Rust' }),
+    raw({ tags_override: [42] }),
+    raw({ tags_override: [''] }),
     raw({ source: 'medium' }),
     raw({ cover: 'javascript:bad()' }),
   ])
@@ -54,12 +58,15 @@ test('filters, featured, empty catalog and overrides', () => {
       featured: true,
       category_override: 'Cybersecurity',
       description_override: 'Custom',
+      tags_override: ['Curated'],
     }),
   });
   assert.equal(filterPosts(posts, 'Engineering').length, 0);
   assert.equal(filterPosts(posts, 'All Posts').length, 1);
   assert.equal(featuredPosts(posts).length, 1);
   assert.equal(posts[0].description, 'Custom');
+  assert.deepEqual(posts[0].tags, ['Curated']);
+  assert.deepEqual(parsePost(raw({ tags_override: [] }), 'post.md').tags, []);
   assert.deepEqual(loadPosts({}), []);
 });
 test('routes resolve root, index, article and unknown slugs with deployment base', () => {
@@ -67,6 +74,14 @@ test('routes resolve root, index, article and unknown slugs with deployment base
   for (const base of ['/', '/portfolio/']) {
     assert.equal(routeFile(base, posts, base), 'content/about.md');
     assert.equal(routeFile(`${base}blog/`, posts, base), 'blog-index');
+    assert.equal(
+      routeFile(caseStudyHref(base), posts, base),
+      CASE_STUDY.fileId
+    );
+    assert.equal(
+      routeFile(`${base}case-studies/missing/`, posts, base),
+      'not-found'
+    );
     assert.equal(routeFile(`${base}blog/example/`, posts, base), 'blog/a.md');
     assert.equal(routeFile(`${base}blog/missing/`, posts, base), 'not-found');
   }

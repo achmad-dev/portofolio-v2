@@ -1,3 +1,5 @@
+import { CASE_STUDY } from '../../config/site';
+import { CaseStudyView } from '../../blog/CaseStudyView';
 import { createNoteLinks, resolveNoteLink } from '../../blog/links';
 import { posts, blogHref } from '../../blog/catalog';
 import { ArticleView, BlogView } from '../../blog/BlogView';
@@ -94,7 +96,9 @@ export const EditorArea: React.FC = () => {
                 <div
                   className={`markdown-buffer min-h-full ${readerMode ? 'reader-mode' : ''}`}
                 >
-                  {posts.find((p) => p.fileId === activeFileId) ? (
+                  {activeFileId === CASE_STUDY.fileId ? (
+                    <CaseStudyView reading={readerMode} />
+                  ) : posts.find((p) => p.fileId === activeFileId) ? (
                     <ArticleView
                       post={posts.find((p) => p.fileId === activeFileId)!}
                       reading={readerMode}

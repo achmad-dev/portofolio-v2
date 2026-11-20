@@ -1,3 +1,4 @@
+import { CASE_STUDY } from '../config/site';
 import { parse } from 'yaml';
 import categories from './categories.json';
 export type BlogCategory = keyof typeof categories;
@@ -10,6 +11,7 @@ export interface BlogPost {
   updated?: string;
   category: BlogCategory;
   tags: string[];
+  tags_override?: string[];
   cover?: string;
   source: 'medium' | 'local';
   source_id?: string;
@@ -83,8 +85,15 @@ export function parsePost(raw: string, fileId: string): BlogPost {
       !m.description_override.trim())
   )
     fail();
+  if (
+    m.tags_override !== undefined &&
+    (!Array.isArray(m.tags_override) ||
+      m.tags_override.some((t: unknown) => typeof t !== 'string' || !t.trim()))
+  )
+    fail();
   return {
     ...m,
+    tags: m.tags_override ?? m.tags,
     category: m.category_override ?? m.category,
     description: m.description_override ?? m.description,
     body: match[2],
@@ -115,6 +124,8 @@ export const filterPosts = (
 ) => posts.filter((p) => category === 'All Posts' || p.category === category);
 export const featuredPosts = (posts: BlogPost[]) =>
   posts.filter((p) => p.featured);
+export const latestPosts = (posts: BlogPost[]) =>
+  posts.filter((p) => !p.featured);
 export function routeFile(path: string, posts: BlogPost[], base = '/') {
   const prefix = base.replace(/\/$/, '');
   if (prefix && path !== prefix && !path.startsWith(`${prefix}/`))
@@ -122,5 +133,7 @@ export function routeFile(path: string, posts: BlogPost[], base = '/') {
   const local = path.slice(prefix.length).replace(/\/+$/, '') || '/';
   if (local === '/') return 'content/about.md';
   if (local === '/blog') return 'blog-index';
+  if (local === `/${CASE_STUDY.path.replace(/\/$/, '')}`)
+    return CASE_STUDY.fileId;
   return posts.find((p) => local === `/blog/${p.slug}`)?.fileId ?? 'not-found';
 }

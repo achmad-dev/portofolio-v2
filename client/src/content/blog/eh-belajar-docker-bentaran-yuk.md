@@ -13,6 +13,9 @@ original_url: https://medium.com/@moonNight1/eh-belajar-docker-bentaran-yuk-b4b7
 featured: false
 draft: false
 cover: https://cdn-images-1.medium.com/max/1024/0*bcRsp52IF7GOnWG2
+tags_override:
+- Docker
+- Containers
 ---
 # Eh belajar docker bentaran yuk
 

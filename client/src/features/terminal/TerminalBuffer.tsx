@@ -1,3 +1,6 @@
+import { useFileSystem } from '../../context/FileSystemContext';
+import { terminalCommand } from './commands';
+import { SITE } from '../../config/site';
 import React, { useEffect, useRef, useState } from 'react';
 
 interface TerminalLine {
@@ -6,11 +9,12 @@ interface TerminalLine {
 }
 
 const prompt = 'achmad@portfolio:~$';
-const email = 'alfayaquta@proton.me';
+const email = SITE.email;
 
 export const TerminalBuffer: React.FC<{ isOpen?: boolean }> = ({
   isOpen = true,
 }) => {
+  const { openFile } = useFileSystem();
   const [history, setHistory] = useState<TerminalLine[]>([
     { type: 'system', text: 'achmad@portfolio — interactive shell' },
     { type: 'system', text: 'Type "help" to see available commands.' },
@@ -20,25 +24,13 @@ export const TerminalBuffer: React.FC<{ isOpen?: boolean }> = ({
   const inputRef = useRef<HTMLInputElement>(null);
 
   const handleCommand = (value: string) => {
-    const command = value.trim().split(/\s+/)[0].toLowerCase();
-    const responses: Record<string, string> = {
-      help: 'Available commands:\n  help      Show available commands\n  whoami    About Achmad\n  projects  Selected work\n  contact   Email address\n  clear     Clear terminal history\n  sudo      Try your luck',
-      whoami:
-        'Achmad Al Fazari — software engineer in Jakarta. I build reliable backend services, data workflows, and AI integrations.',
-      projects:
-        'Peach Health Asia — discount management, AI workflows, automated reports\nAlivate — multi-agent AI and ads automation\nClickHouse Go client — open-source contribution',
-      contact: `Email: ${email}`,
-      sudo: 'User is not in the sudoers file. This incident will be reported.',
-    };
-
-    if (command === 'clear') {
+    const result = terminalCommand(value);
+    if (result.clear) {
       setHistory([]);
       return;
     }
-
-    const response =
-      responses[command] ??
-      (command ? `bash: ${command}: command not found` : '');
+    if (result.fileId) openFile(result.fileId);
+    const response = result.text;
     setHistory((previous) => [
       ...previous,
       { type: 'input', text: value },

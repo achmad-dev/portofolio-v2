@@ -13,6 +13,10 @@ original_url: https://medium.com/@moonNight1/from-segmentation-to-surrealism-unl
 featured: false
 draft: false
 cover: https://cdn-images-1.medium.com/max/589/1*JmeMykuP8YotZZ3Ijk3Qpw.png
+tags_override:
+- YOLOv8
+- Stable Diffusion
+- Computer Vision
 ---
 # From Segmentation to Surrealism: Unleashing the Power of YOLOv8 and Stable Diffusion in Painting
 

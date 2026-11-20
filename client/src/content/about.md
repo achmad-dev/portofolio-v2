@@ -2,6 +2,10 @@
 
 I'm a software engineer based in Indonesia with 4+ years of experience building backend services, cloud infrastructure, and production systems. My work focuses on Go, reliable APIs, data workflows, and practical AI integrations.
 
+**Backend, AI & Infrastructure Engineer**
+
+[Email](mailto:alfayaquta@proton.me) · [LinkedIn](https://www.linkedin.com/in/achmad-al-fazari/) · [GitHub](https://github.com/achmad-dev) · [Case Study](/case-studies/ai-ads-workflow-study/) · [Writing](/blog/)
+
 ## Skills
 
 - **Languages and apps:** Rust, Go, Python, SQL, TypeScript, React Native, Next.js
@@ -12,9 +16,9 @@ I'm a software engineer based in Indonesia with 4+ years of experience building 
 
 ## Selected Work
 
-![Peach Health Asia public website](/works/peachhealthasia.png) ![Alivate public website](/works/alivate.png)
-
 ### Peach Health Asia
+
+![Peach Health Asia public website](/works/peachhealthasia.png)
 
 Peach Health's commercial platform provides a bridge between international digital health companies and healthcare consumers in the Asia Pacific region
 
@@ -24,9 +28,11 @@ As a software engineer, I work across healthcare product workflows, including di
 
 ### Alivate
 
+![Alivate public website](/works/alivate.png)
+
 Alivate plans, launches, and optimizes performance campaigns for businesses that want real revenue outcomes - not vanity metrics.
 
-As an AI Lead Engineer and Software Engineer, I work on end-to-end AI integrations, multi-agent workflows, advertising automation, and an ads management system for Meta Ads and Google Ads. The case study in the explorer covers one of these workflows.
+As an AI Lead Engineer and Software Engineer, I work on end-to-end AI integrations, multi-agent workflows, advertising automation, and an ads management system for Meta Ads and Google Ads. [Read the AI Ads Workflow case study](/case-studies/ai-ads-workflow-study/) for the architecture, contracts, and creative-quality controls.
 
 [Visit Alivate](https://alivate.co/)
 
@@ -37,6 +43,8 @@ ClickHouse is a fast, open-source, column-oriented database management system de
 I contributed to the [ClickHouse Go client #1410](https://github.com/ClickHouse/clickhouse-go/pull/1410).
 
 ## Experience
+
+Some internships were undertaken alongside other roles.
 
 ### Embreo · Software Engineer (Jan 2025–present)
 

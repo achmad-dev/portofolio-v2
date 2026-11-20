@@ -10,8 +10,12 @@ tags: []
 source: medium
 source_id: 890d1768d6dd
 original_url: https://medium.com/@moonNight1/efficiently-test-your-lambda-functions-locally-with-docker-a-step-by-step-guide-890d1768d6dd
-featured: false
+featured: true
 draft: false
+tags_override:
+- AWS Lambda
+- Docker
+- Local Testing
 ---
 # Efficiently Test Your Lambda Functions Locally with Docker: A Step-by-Step Guide
 

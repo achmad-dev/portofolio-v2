@@ -1,3 +1,5 @@
+import { CASE_STUDY, caseStudyHref } from './config/site';
+import { CaseStudyView } from './blog/CaseStudyView';
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -81,7 +83,15 @@ for (const post of posts)
     post.date,
     post.updated
   );
+emit(
+  caseStudyHref(import.meta.env.BASE_URL),
+  CASE_STUDY.title,
+  CASE_STUDY.description,
+  absolute(caseStudyHref(import.meta.env.BASE_URL)),
+  renderToStaticMarkup(<CaseStudyView />)
+);
 const urls = [
+  caseStudyHref(import.meta.env.BASE_URL),
   import.meta.env.BASE_URL,
   blogHref(),
   ...posts.map((p) => blogHref(p.slug)),
@@ -108,4 +118,4 @@ writeFileSync(
       '<div id="root"><h1>Page not found</h1></div>'
     )
 );
-console.log(`Generated blog index and ${posts.length} article pages.`);
+console.log(`Generated blog index, ${posts.length} article pages and the Alivate case study.`);

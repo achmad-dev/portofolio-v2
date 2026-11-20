@@ -12,6 +12,10 @@ original_url: https://medium.com/@moonNight1/how-to-use-the-yolov8-model-with-op
 featured: false
 draft: false
 cover: https://cdn-images-1.medium.com/max/1024/1*DrbQidpx8a8Kz6bWt-yRSQ.jpeg
+tags_override:
+- YOLOv8
+- OpenCV
+- ONNX
 ---
 # How to use the yolov8 model with OpenCV onnx inference
 

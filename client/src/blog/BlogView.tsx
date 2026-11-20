@@ -1,6 +1,11 @@
 import { useState } from 'react';
 import type { MouseEvent } from 'react';
-import { categoryNames, filterPosts, featuredPosts } from './model';
+import {
+  categoryNames,
+  filterPosts,
+  featuredPosts,
+  latestPosts,
+} from './model';
 import type { BlogCategory, BlogPost } from './model';
 import { MarkdownViewer } from '../features/editor/MarkdownViewer';
 export function BlogView({
@@ -16,6 +21,7 @@ export function BlogView({
     'All Posts'
   );
   const visible = filterPosts(posts, category);
+  const latest = latestPosts(visible);
   const card = (p: BlogPost) => (
     <article key={p.slug} className="blog-card">
       {p.cover && <img src={p.cover} alt="" loading="lazy" />}
@@ -72,8 +78,9 @@ export function BlogView({
           {featuredPosts(visible).map(card)}
         </>
       )}
-      <h2>Latest Articles</h2>
-      {visible.length ? visible.map(card) : <p>No articles yet.</p>}
+      {(latest.length > 0 || visible.length === 0) && <h2>Latest Articles</h2>}
+      {latest.map(card)}
+      {visible.length === 0 && <p>No articles yet.</p>}
     </section>
   );
 }

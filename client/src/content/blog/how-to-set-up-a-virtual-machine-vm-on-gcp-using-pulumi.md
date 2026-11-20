@@ -10,9 +10,13 @@ tags: []
 source: medium
 source_id: 1fd8ef7efae5
 original_url: https://medium.com/@moonNight1/how-to-setup-vm-on-gcp-using-pulumi-1fd8ef7efae5
-featured: false
+featured: true
 draft: false
 cover: https://cdn-images-1.medium.com/max/1024/1*UrHX4xTXft8qS0NLCw_ACw.jpeg
+tags_override:
+- GCP
+- Pulumi
+- Infrastructure as Code
 ---
 # How to Set Up a Virtual Machine (VM) on GCP Using Pulumi
 

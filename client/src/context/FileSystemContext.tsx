@@ -1,3 +1,4 @@
+import { CASE_STUDY, caseStudyHref } from '../config/site';
 import { updateSeo } from '../blog/seo';
 import { posts, blogHref } from '../blog/catalog';
 import { routeFile } from '../blog/model';
@@ -73,7 +74,9 @@ export const FileSystemProvider = ({ children }: { children: ReactNode }) => {
       ? blogHref(post.slug)
       : fileId === 'blog-index'
         ? blogHref()
-        : import.meta.env.BASE_URL;
+        : fileId === CASE_STUDY.fileId
+          ? caseStudyHref(import.meta.env.BASE_URL)
+          : import.meta.env.BASE_URL;
     if (
       window.location.pathname !== url ||
       window.history.state?.fileId !== fileId
@@ -107,7 +110,8 @@ export const FileSystemProvider = ({ children }: { children: ReactNode }) => {
     updateSeo(
       post,
       activeFileId === 'blog-index',
-      activeFileId === 'not-found'
+      activeFileId === 'not-found',
+      activeFileId === CASE_STUDY.fileId
     );
   }, [activeFileId]);
 

@@ -32,7 +32,13 @@ test('blog empty state renders accessible filters without category routes', () =
 });
 test('blog renders featured cards, metadata, tags and article links', () => {
   const html = renderToStaticMarkup(
-    createElement(BlogView, { posts: [post], href: (slug) => `/blog/${slug}/` })
+    createElement(BlogView, {
+      posts: [
+        post,
+        { ...post, slug: 'latest', fileId: 'blog/latest.md', featured: false },
+      ],
+      href: (slug) => `/blog/${slug}/`,
+    })
   );
   for (const value of [
     'Featured Articles',
@@ -42,6 +48,8 @@ test('blog renders featured cards, metadata, tags and article links', () => {
     'href="/blog/example/"',
   ])
     assert.ok(html.includes(value));
+  assert.equal((html.match(/href="\/blog\/example\/"/g) || []).length, 1);
+  assert.equal((html.match(/href="\/blog\/latest\/"/g) || []).length, 1);
 });
 test('article content renders to HTML without browser workspace', () => {
   const html = renderToStaticMarkup(createElement(ArticleView, { post }));

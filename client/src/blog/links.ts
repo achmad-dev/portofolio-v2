@@ -1,3 +1,4 @@
+import { CASE_STUDY, caseStudyHref } from '../config/site';
 import type { BlogPost } from './model';
 export interface NoteLink {
   id: string;
@@ -26,7 +27,11 @@ export function resolveNoteLink(
   );
   if (route) return route.id;
   const parts = path.startsWith('/') ? [] : source.split('/').slice(0, -1);
-  for (const part of path.replace(/^\//, '').split('/')) {
+  const localPath =
+    path.startsWith('/') && base !== '/' && path.startsWith(base)
+      ? path.slice(base.length)
+      : path.replace(/^\//, '');
+  for (const part of localPath.split('/')) {
     if (part === '..') parts.pop();
     else if (part && part !== '.') parts.push(part);
   }
@@ -54,7 +59,14 @@ export function createNoteLinks(
       .filter((d) => d.id.endsWith('.md'))
       .map((d) => {
         const post = posts.find((p) => p.fileId === d.id);
-        return { id: d.id, href: post ? `${base}blog/${post.slug}/` : base };
+        return {
+          id: d.id,
+          href: post
+            ? `${base}blog/${post.slug}/`
+            : d.id === CASE_STUDY.fileId
+              ? caseStudyHref(base)
+              : base,
+        };
       }),
   ];
 }

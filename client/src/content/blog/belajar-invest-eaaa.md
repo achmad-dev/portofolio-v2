@@ -13,6 +13,10 @@ original_url: https://medium.com/@moonNight1/belajar-invest-eaaa-46ea9ef371eb
 featured: false
 draft: false
 cover: https://cdn-images-1.medium.com/max/789/1*iDV-tCv3FSGIBQceva3TFA.png
+tags_override:
+- Finance
+- Python
+- Stock Screening
 ---
 # Belajar invest eaaa
 
