@@ -123,6 +123,10 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
               );
             },
             a({ node, ...props }: any) {
+              const href =
+                props.href?.startsWith('/') && !props.href.startsWith('//')
+                  ? `${import.meta.env.BASE_URL}${props.href.slice(1)}`
+                  : props.href;
               return (
                 <a
                   className="text-catppuccin-blue hover:text-catppuccin-sapphire underline decoration-catppuccin-surface2 underline-offset-4 transition-colors"
@@ -131,6 +135,7 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
                   }
                   rel="noopener noreferrer"
                   {...props}
+                  href={href}
                 />
               );
             },

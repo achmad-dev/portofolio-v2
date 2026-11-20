@@ -32,7 +32,7 @@ for (const post of posts) {
   assert.ok(html.includes(`${base}assets/`));
   assert.equal((html.match(/<title>/g) || []).length, 1);
   assert.equal((html.match(/rel="canonical"/g) || []).length, 1);
-  assert.ok(html.includes('<article>'));
+  assert.ok(html.includes('class="article-view reader-mode"'));
   assert.ok(sitemap.includes(`${base}blog/${post.slug}/`));
 }
 const scripts = readdirSync(new URL('../dist/assets/', import.meta.url))

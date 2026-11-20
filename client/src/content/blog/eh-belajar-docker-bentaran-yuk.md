@@ -1,9 +1,9 @@
 ---
 title: Eh belajar docker bentaran yuk
 slug: eh-belajar-docker-bentaran-yuk
-description: Image Pernah kepikiran ga sih, kenapa Docker sekarang jadi lingua franca
-  buat infrastructure? Semenjak kemunculannya, Docker sukses mengubah banyak hal di
-  dunia development. Tapi t
+description: Pernah kepikiran ga sih, kenapa Docker sekarang jadi lingua franca buat
+  infrastructure? Semenjak kemunculannya, Docker sukses mengubah banyak hal di dunia
+  development. Tapi tau ga?
 date: '2025-12-23'
 category: DevOps & Cloud
 tags: []

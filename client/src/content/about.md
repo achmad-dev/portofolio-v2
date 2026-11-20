@@ -2,6 +2,10 @@
 
 I'm a software engineer based in Indonesia with 4+ years of experience building backend services, cloud infrastructure, and production systems. My work focuses on Go, reliable APIs, data workflows, and practical AI integrations.
 
+## Writing & Research
+
+I write about engineering, AI, cloud infrastructure, security, and finance. [Explore my writing and research](/blog/) to browse articles and ideas.
+
 ## Skills
 
 - **Languages and apps:** Rust, Go, Python, SQL, TypeScript, React Native, Next.js

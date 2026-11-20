@@ -1,9 +1,8 @@
 ---
 title: 'Anatomy of a Discord Token Hijack: Why 2FA Isn’t Enough (A Security Post-Mortem)'
 slug: anatomy-of-a-discord-token-hijack-why-2fa-isn-t-enough-a-security-post-mortem
-description: 'Image It was a regular morning. I had just finished my daily stand-up
-  at work when I noticed a bizarre notification: notification about ignored users.
-  I hadn’t been active, yet upo'
+description: 'It was a regular morning. I had just finished my daily stand-up at work
+  when I noticed a bizarre notification: notification about ignored users.'
 date: '2026-10-07'
 category: Cybersecurity
 tags: []

@@ -77,12 +77,24 @@ export function BlogView({
     </section>
   );
 }
-export function ArticleView({ post }: { post: BlogPost }) {
+export function ArticleView({
+  post,
+  reading = true,
+}: {
+  post: BlogPost;
+  reading?: boolean;
+}) {
+  // Metadata provides the title; avoid repeating the imported opening heading.
+  const openingHeading = /^# ([^\n]+)\r?\n/.exec(post.body);
+  const body =
+    openingHeading?.[1].trim() === post.title.trim()
+      ? post.body.slice(openingHeading[0].length).replace(/^\s*\n/, '')
+      : post.body;
   return (
-    <article>
+    <article className={`article-view ${reading ? 'reader-mode' : ''}`}>
       <header className="blog-article-header">
         <h1>{post.title}</h1>
-        <p>{post.description}</p>
+        <p className="article-summary">{post.description}</p>
         <p className="blog-meta">
           {post.category} · <time dateTime={post.date}>{post.date}</time>
           {post.updated && ` · Updated ${post.updated}`}
@@ -93,7 +105,7 @@ export function ArticleView({ post }: { post: BlogPost }) {
           ))}
         </div>
       </header>
-      <MarkdownViewer content={post.body} />
+      <MarkdownViewer content={body} />
     </article>
   );
 }

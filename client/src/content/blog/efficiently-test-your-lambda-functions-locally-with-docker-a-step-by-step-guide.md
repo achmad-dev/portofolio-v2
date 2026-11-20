@@ -4,7 +4,6 @@ title: 'Efficiently Test Your Lambda Functions Locally with Docker: A Step-by-St
 slug: efficiently-test-your-lambda-functions-locally-with-docker-a-step-by-step-guide
 description: In the ever-evolving landscape of cloud computing, AWS Lambda has emerged
   as a powerful tool for building scalable and cost-effective serverless applications.
-  The flexibility it of
 date: '2023-12-01'
 category: DevOps & Cloud
 tags: []

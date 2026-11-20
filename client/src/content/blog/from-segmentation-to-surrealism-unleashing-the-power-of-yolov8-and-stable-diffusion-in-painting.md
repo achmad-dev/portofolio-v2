@@ -2,9 +2,8 @@
 title: 'From Segmentation to Surrealism: Unleashing the Power of YOLOv8 and Stable
   Diffusion in Painting'
 slug: from-segmentation-to-surrealism-unleashing-the-power-of-yolov8-and-stable-diffusion-in-painting
-description: 'The world of art is constantly evolving, and artificial intelligence
-  (AI) is rapidly becoming a powerful tool for artistic expression. Imagine a process
-  that can not only identify '
+description: The world of art is constantly evolving, and artificial intelligence
+  (AI) is rapidly becoming a powerful tool for artistic expression.
 date: '2024-03-16'
 category: Artificial Intelligence
 tags: []

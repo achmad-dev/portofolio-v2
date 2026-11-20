@@ -2,8 +2,7 @@
 title: How to use the yolov8 model with OpenCV onnx inference
 slug: how-to-use-the-yolov8-model-with-opencv-onnx-inference
 description: Before you can use yolov8 model with opencv onnx inference you need to
-  convert the model to onnx format you can this code for that text from ultralytics
-  import YOLO model = YOLO("/
+  convert the model to onnx format you can this code for that
 date: '2024-03-07'
 category: Artificial Intelligence
 tags: []

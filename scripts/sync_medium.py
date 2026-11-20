@@ -61,6 +61,21 @@ def clean_html(content):
 def html_to_markdown(content):
     return markdownify(str(clean_html(content)), heading_style='ATX', bullets='-').strip()
 
+def summarize(text, limit=200):
+    text = ' '.join(text.split())
+    if len(text) <= limit:
+        return text
+    # Prefer a complete sentence; otherwise stop at a word boundary.
+    excerpt = text[:limit + 1]
+    sentences = list(re.finditer(r'[.!?](?=\s|$)', excerpt))
+    if sentences and sentences[-1].end() >= limit // 2:
+        return excerpt[:sentences[-1].end()]
+    return excerpt.rsplit(' ', 1)[0].rstrip(' ,;:') + '…'
+
+def article_description(soup, title):
+    paragraphs = [p.get_text(' ', strip=True) for p in soup.find_all('p')]
+    return summarize(next((p for p in paragraphs if p.strip()), soup.get_text(' ', strip=True))) or title
+
 def read_post(path):
     match = re.match(r'^---\n([\s\S]*?)\n---\n([\s\S]*)$', path.read_text(encoding='utf-8'))
     if not match:
@@ -100,7 +115,7 @@ def parse_feed(data):
             body = f'# {title}\n\n{body}'
         link_parts = urlsplit(link)
         meta = dict(title=title, date=published_date(fields.get('pubDate', '')), tags=list(dict.fromkeys(tags)),
-                    category=classify(tags), description=' '.join(soup.get_text(' ', strip=True).split())[:180] or title,
+                    category=classify(tags), description=article_description(soup, title),
                     source='medium', source_id=identity,
                     original_url=urlunsplit((link_parts.scheme, link_parts.netloc, link_parts.path, '', '')))
         if fields.get('updated'):

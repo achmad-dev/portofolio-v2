@@ -79,6 +79,18 @@ class SyncTests(unittest.TestCase):
             self.run_feed(data)
         self.assertEqual(list(self.output.iterdir()), [])
 
+class SummaryTests(unittest.TestCase):
+    def test_summary_uses_prose_instead_of_heading_or_image(self):
+        soup = sync.clean_html('<h1>Duplicate title</h1><p><img alt="Image" src="https://example.com/a.png"></p><p>A useful complete introduction.</p>')
+        self.assertEqual(sync.article_description(soup, 'Title'), 'A useful complete introduction.')
+    def test_summary_stops_at_sentence_or_word_boundary(self):
+        self.assertEqual(sync.summarize('A short sentence.'), 'A short sentence.')
+        text = ' '.join(['readable'] * 50)
+        excerpt = sync.summarize(text)
+        self.assertTrue(excerpt.endswith('readable…'))
+        self.assertLessEqual(len(excerpt), 201)
+
+
 class CategoryTests(unittest.TestCase):
     def test_categories(self):
         for tags, expected in [(['Rust'],'Engineering'), (['LLM','Rust'],'Artificial Intelligence'), (['Docker'],'DevOps & Cloud'), (['OWASP'],'Cybersecurity'), (['Finance'],'Finance & Technology'), ([], 'Engineering'), (['unknown'],'Engineering'), (['lLm'],'Artificial Intelligence'), (['API Security'],'Cybersecurity'), (['said'],'Engineering'), (['Rust', 'AWS tooling'],'Engineering')]:

@@ -46,5 +46,7 @@ test('blog renders featured cards, metadata, tags and article links', () => {
 test('article content renders to HTML without browser workspace', () => {
   const html = renderToStaticMarkup(createElement(ArticleView, { post }));
   assert.ok(html.includes('<strong>strong</strong>'));
+  assert.equal((html.match(/<h1/g) || []).length, 1);
+  assert.ok(html.includes('article-view reader-mode'));
   assert.ok(html.includes('dateTime="2026-11-20"'));
 });
