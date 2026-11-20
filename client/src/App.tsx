@@ -59,43 +59,6 @@ function Workspace() {
   }, []);
 
   useEffect(() => {
-    if (booting) return;
-    const scroller = document.querySelector<HTMLElement>('.editor-scroll');
-    if (!scroller) return;
-    const blocks = gsap.utils.toArray<HTMLElement>('.editor-prose > *');
-    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    gsap.set(blocks, { opacity: 0, y: 24 });
-    const initial = blocks.slice(0, 4);
-    gsap.to(initial, {
-      opacity: 1,
-      y: 0,
-      duration: 0.55,
-      stagger: 0.08,
-      ease: 'power2.out',
-    });
-    const triggers = blocks.slice(4).map((block) =>
-      ScrollTrigger.create({
-        trigger: block,
-        scroller,
-        start: 'top 88%',
-        once: true,
-        onEnter: () =>
-          gsap.to(block, {
-            opacity: 1,
-            y: 0,
-            duration: 0.5,
-            ease: 'power2.out',
-          }),
-      })
-    );
-    ScrollTrigger.refresh();
-    return () => {
-      triggers.forEach((trigger) => trigger.kill());
-      gsap.killTweensOf(blocks);
-    };
-  }, [booting, activeFileId]);
-
-  useEffect(() => {
     const root = bootRef.current;
     if (!root) {
       gsap.set('.workspace-sidebar, .workspace-topbar, .workspace-status', {
