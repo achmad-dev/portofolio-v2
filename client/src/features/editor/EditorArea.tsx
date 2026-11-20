@@ -1,5 +1,4 @@
-import { buildNoteGraph, resolveNoteLink } from '../../blog/graph';
-import { NoteGraph } from './NoteGraph';
+import { createNoteLinks, resolveNoteLink } from '../../blog/links';
 import { posts, blogHref } from '../../blog/catalog';
 import { ArticleView, BlogView } from '../../blog/BlogView';
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
@@ -10,9 +9,9 @@ import { MarkdownViewer } from './MarkdownViewer';
 
 export const EditorArea: React.FC = () => {
   const { files, activeFileId, getFileType, openFile } = useFileSystem();
-  const [graphOpen, setGraphOpen] = useState(false);
-  const graph = useMemo(
-    () => buildNoteGraph(Object.values(files), posts, import.meta.env.BASE_URL),
+  const noteLinks = useMemo(
+    () =>
+      createNoteLinks(Object.values(files), posts, import.meta.env.BASE_URL),
     [files]
   );
   const [readerMode, setReaderMode] = useState(true);
@@ -33,15 +32,6 @@ export const EditorArea: React.FC = () => {
             {`portfolio > ${activeFileId.replace(/^content\//, '').replace(/\//g, ' > ')}`}
           </div>
           <div className="flex items-center gap-3 shrink-0">
-            <button
-              type="button"
-              className="reader-toggle"
-              aria-expanded={graphOpen}
-              aria-controls="note-graph-panel"
-              onClick={() => setGraphOpen((value) => !value)}
-            >
-              LINKED NOTES
-            </button>
             {isMarkdown && (
               <button
                 type="button"
@@ -56,16 +46,6 @@ export const EditorArea: React.FC = () => {
         </div>
       )}
 
-      {graphOpen && (
-        <div id="note-graph-panel">
-          <NoteGraph
-            notes={graph.notes}
-            edges={graph.edges}
-            activeId={activeFileId}
-            onOpen={openFile}
-          />
-        </div>
-      )}
       {/* Content Scroll Area */}
       <div className="editor-scroll flex-1 min-h-0 overflow-auto custom-scrollbar relative">
         <div
@@ -86,7 +66,7 @@ export const EditorArea: React.FC = () => {
             const target = resolveNoteLink(
               anchor.getAttribute('href') || '',
               activeFileId || 'content/about.md',
-              graph.notes,
+              noteLinks,
               import.meta.env.BASE_URL
             );
             if (target) {

@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildNoteGraph, resolveNoteLink } from '../src/blog/graph';
+import { createNoteLinks, resolveNoteLink } from '../src/blog/links';
 import { parsePost } from '../src/blog/model';
 const post = parsePost(
   `---
@@ -30,16 +30,13 @@ const docs = [
     content: '# Case study\n[Article](../blog/example.md)',
   },
 ];
-test('graph derives distinct real links, index links and backlinks, excluding images/code/external URLs', () => {
+test('internal navigation resolves index, articles and relative notes across deployment bases', () => {
   for (const base of ['/', '/portfolio/']) {
-    const { notes, edges } = buildNoteGraph(docs, [post], base);
-    assert.equal(notes.length, 4);
-    assert.deepEqual(edges, [
-      { source: 'content/about.md', target: 'blog-index' },
-      { source: 'blog/example.md', target: 'content/about.md' },
-      { source: 'case-studies/study.md', target: 'blog/example.md' },
-      { source: 'blog-index', target: 'blog/example.md' },
-    ]);
+    const notes = createNoteLinks(docs, [post], base);
+    assert.equal(
+      resolveNoteLink('/blog/', 'content/about.md', notes, base),
+      'blog-index'
+    );
     assert.equal(
       resolveNoteLink(`${base}blog/example/`, 'content/about.md', notes, base),
       post.fileId
@@ -66,9 +63,4 @@ test('graph derives distinct real links, index links and backlinks, excluding im
         undefined
       );
   }
-});
-test('empty graph retains the writing index without broken edges', () => {
-  const graph = buildNoteGraph([], []);
-  assert.equal(graph.notes.length, 1);
-  assert.deepEqual(graph.edges, []);
 });

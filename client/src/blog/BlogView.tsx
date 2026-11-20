@@ -94,7 +94,6 @@ export function ArticleView({
     <article className={`article-view ${reading ? 'reader-mode' : ''}`}>
       <header className="blog-article-header">
         <h1>{post.title}</h1>
-        <p className="article-summary">{post.description}</p>
         <p className="blog-meta">
           {post.category} · <time dateTime={post.date}>{post.date}</time>
           {post.updated && ` · Updated ${post.updated}`}
