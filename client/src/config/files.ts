@@ -15,7 +15,7 @@ const files: FileSystemState = {
     name: 'root',
     type: 'folder',
     isOpen: true,
-    children: ['blog-index', 'content', 'config'],
+    children: ['content', 'blog', 'config'],
   },
   content: {
     id: 'content',
@@ -23,6 +23,13 @@ const files: FileSystemState = {
     type: 'folder',
     isOpen: true,
     children: [],
+  },
+  blog: {
+    id: 'blog',
+    name: 'blog',
+    type: 'folder',
+    isOpen: false,
+    children: ['blog-index'],
   },
   config: {
     id: 'config',
@@ -112,6 +119,8 @@ for (const [modulePath, content] of Object.entries(markdownModules)) {
 
 for (const node of Object.values(files)) {
   node.children?.sort((a, b) => {
+    if (a === 'blog-index') return -1;
+    if (b === 'blog-index') return 1;
     if (a.endsWith('/about.md')) return -1;
     if (b.endsWith('/about.md')) return 1;
     return files[a].name.localeCompare(files[b].name);
@@ -120,7 +129,6 @@ for (const node of Object.values(files)) {
 
 // Keep the original explorer's top-level order while showing only real content folders.
 files.root.children = [
-  'blog-index',
   'content',
   ...files.root.children!.filter(
     (id) => !['blog-index', 'content', 'config'].includes(id)
