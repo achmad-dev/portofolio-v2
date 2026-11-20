@@ -1,0 +1,52 @@
+{
+  "Cybersecurity": [
+    "Security",
+    "OWASP",
+    "SSRF",
+    "Penetration Testing",
+    "Application Security",
+    "Vulnerabilities",
+    "API Security"
+  ],
+  "Artificial Intelligence": [
+    "AI",
+    "LLM",
+    "RAG",
+    "Machine Learning",
+    "Deep Learning",
+    "AI Agents",
+    "Model Inference",
+    "YOLO",
+    "YOLOv8",
+    "Stable Diffusion"
+  ],
+  "DevOps & Cloud": [
+    "DevOps",
+    "AWS",
+    "Docker",
+    "Kubernetes",
+    "Linux",
+    "CI/CD",
+    "Infrastructure",
+    "GCP",
+    "Pulumi"
+  ],
+  "Finance & Technology": [
+    "Finance",
+    "Fintech",
+    "Cryptocurrency",
+    "Blockchain",
+    "Web3",
+    "Financial Systems",
+    "Invest"
+  ],
+  "Engineering": [
+    "Rust",
+    "Golang",
+    "Backend",
+    "System Design",
+    "Software Architecture",
+    "Distributed Systems",
+    "Databases"
+  ]
+}

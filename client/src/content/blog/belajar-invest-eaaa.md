@@ -1,3 +1,19 @@
+---
+title: Belajar invest eaaa
+slug: belajar-invest-eaaa
+description: Image Bayangkan, di Bursa Efek Indonesia (BEI) saat ini ada lebih dari
+  900 saham . Kalau kita harus cek laporan keuangannya satu per satu secara manual,
+  bisa keriting jari kita. Mu
+date: '2025-12-27'
+category: Finance & Technology
+tags: []
+source: medium
+source_id: 46ea9ef371eb
+original_url: https://medium.com/@moonNight1/belajar-invest-eaaa-46ea9ef371eb
+featured: false
+draft: false
+cover: https://cdn-images-1.medium.com/max/789/1*iDV-tCv3FSGIBQceva3TFA.png
+---
 # Belajar invest eaaa
 
 ![Image](https://cdn-images-1.medium.com/max/789/1*iDV-tCv3FSGIBQceva3TFA.png)

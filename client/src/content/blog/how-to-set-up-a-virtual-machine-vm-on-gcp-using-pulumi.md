@@ -1,3 +1,19 @@
+---
+title: How to Set Up a Virtual Machine (VM) on GCP Using Pulumi
+slug: how-to-set-up-a-virtual-machine-vm-on-gcp-using-pulumi
+description: Image Cloud infrastructure management has become easier with tools like
+  Pulumi or Terraform that help you define your infrastructure as code, whether you
+  are working with GCP, AWS,
+date: '2024-12-01'
+category: DevOps & Cloud
+tags: []
+source: medium
+source_id: 1fd8ef7efae5
+original_url: https://medium.com/@moonNight1/how-to-setup-vm-on-gcp-using-pulumi-1fd8ef7efae5
+featured: false
+draft: false
+cover: https://cdn-images-1.medium.com/max/1024/1*UrHX4xTXft8qS0NLCw_ACw.jpeg
+---
 # How to Set Up a Virtual Machine (VM) on GCP Using Pulumi
 
 ![Image](https://cdn-images-1.medium.com/max/1024/1*UrHX4xTXft8qS0NLCw_ACw.jpeg)

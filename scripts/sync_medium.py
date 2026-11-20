@@ -1,181 +1,185 @@
-"""Sync RSS articles into client/src/content/blog as Markdown files."""
-
+"""Incremental Medium RSS import. Builds never fetch content."""
+import os
+import re
+import sys
+import tempfile
+import xml.etree.ElementTree as ET
 from datetime import datetime
 from email.utils import parsedate_to_datetime
-from html.parser import HTMLParser
 from pathlib import Path
-import re
-from urllib.error import URLError
-from urllib.parse import urlsplit
+from urllib.parse import urlsplit, urlunsplit
 from urllib.request import Request, urlopen
-import xml.etree.ElementTree as ET
 
+import yaml
+from bs4 import BeautifulSoup
+from markdownify import markdownify
+from category_classifier import classify
 
 ROOT = Path(__file__).resolve().parents[1]
-OUTPUT_DIR = ROOT / "client/src/content/blog"
-FEEDS = (("medium", "https://medium.com/feed/@moonNight1"),)
+OUTPUT_DIR = ROOT / 'client/src/content/blog'
 
+def local_name(tag):
+    return tag.rsplit('}', 1)[-1]
 
-def local_name(tag: str) -> str:
-    return tag.rsplit("}", 1)[-1]
+def article_key(link):
+    parsed = urlsplit(link)
+    if parsed.scheme != 'https' or not (parsed.hostname == 'medium.com' or (parsed.hostname or '').endswith('.medium.com')):
+        raise ValueError('Invalid Medium article URL')
+    match = re.search(r'(?:-|/)([a-f0-9]{12})$', parsed.path.rstrip('/'), re.I)
+    if not match:
+        raise ValueError('Invalid Medium identifier')
+    return match.group(1).lower()
 
-
-class MarkdownParser(HTMLParser):
-    def __init__(self) -> None:
-        super().__init__(convert_charrefs=True)
-        self.parts: list[str] = []
-        self.links: list[tuple[int, str]] = []
-        self.pre = 0
-
-    def newline(self, count: int = 2) -> None:
-        self.parts.append("\n" * count)
-
-    def handle_starttag(self, tag: str, attrs: list[tuple[str, str | None]]) -> None:
-        attrs = dict(attrs)
-        if tag in {"p", "div", "section", "article", "ul", "ol", "blockquote"}:
-            self.newline()
-        elif tag in {"h1", "h2", "h3", "h4", "h5", "h6"}:
-            self.newline()
-            self.parts.append("#" * int(tag[1]) + " ")
-        elif tag == "li":
-            self.newline(1)
-            self.parts.append("- ")
-        elif tag == "br":
-            self.newline(1)
-        elif tag == "hr":
-            self.newline()
-            self.parts.append("---")
-            self.newline()
-        elif tag == "pre":
-            self.newline()
-            self.parts.append("```text\n")
-            self.pre += 1
-        elif tag == "code" and not self.pre:
-            self.parts.append("`")
-        elif tag in {"strong", "b"}:
-            self.parts.append("**")
-        elif tag in {"em", "i"}:
-            self.parts.append("*")
-        elif tag == "a" and attrs.get("href"):
-            self.links.append((len(self.parts), attrs["href"] or ""))
-        elif tag == "img" and attrs.get("src") and "/_/stat?" not in attrs["src"]:
-            self.parts.append(f"![{attrs.get('alt') or 'Image'}]({attrs['src']})")
-
-    def handle_endtag(self, tag: str) -> None:
-        if tag in {"p", "div", "section", "article", "ul", "ol", "blockquote"}:
-            self.newline()
-        elif tag in {"h1", "h2", "h3", "h4", "h5", "h6", "li"}:
-            self.newline()
-        elif tag == "pre" and self.pre:
-            self.pre -= 1
-            self.newline()
-            self.parts.append("```")
-            self.newline()
-        elif tag == "code" and not self.pre:
-            self.parts.append("`")
-        elif tag in {"strong", "b"}:
-            self.parts.append("**")
-        elif tag in {"em", "i"}:
-            self.parts.append("*")
-        elif tag == "a" and self.links:
-            start, href = self.links.pop()
-            label = "".join(self.parts[start:]).strip()
-            del self.parts[start:]
-            self.parts.append(f"[{label}]({href})" if label else href)
-
-    def handle_data(self, data: str) -> None:
-        self.parts.append(data)
-
-    def markdown(self) -> str:
-        return re.sub(r"\n{3,}", "\n\n", "".join(self.parts)).strip()
-
-
-def html_to_markdown(content: str) -> str:
-    parser = MarkdownParser()
-    parser.feed(content)
-    return parser.markdown()
-
-
-def published_date(value: str) -> str:
+def published_date(value):
     try:
-        return parsedate_to_datetime(value).date().isoformat()
-    except (TypeError, ValueError):
-        try:
-            return datetime.fromisoformat(value.replace("Z", "+00:00")).date().isoformat()
-        except ValueError:
-            return ""
+        date = parsedate_to_datetime(value)
+    except (ValueError, TypeError):
+        date = datetime.fromisoformat(value.replace('Z', '+00:00'))
+    return date.date().isoformat()
 
-
-def article_key(link: str) -> str:
-    path = urlsplit(link).path.rstrip("/")
-    article_id = re.search(r"-([0-9a-f]{12})$", path, re.IGNORECASE)
-    return article_id.group(1).lower() if article_id else path
-
-
-def existing_articles(name: str) -> set[str]:
-    articles = set()
-    source_link = re.compile(rf"\[Read on {re.escape(name)}\]\((https?://[^)]+)\)")
-    for file in OUTPUT_DIR.glob("*.md"):
-        match = source_link.search(file.read_text(encoding="utf-8"))
-        if match:
-            articles.add(article_key(match.group(1)))
-    return articles
-
-
-def sync_feed(name: str, url: str) -> None:
-    request = Request(url, headers={"User-Agent": "AchmadPortfolio/1.0"})
+def safe_url(value):
     try:
-        with urlopen(request, timeout=15) as response:
-            root = ET.fromstring(response.read())
-    except (OSError, URLError, ET.ParseError) as error:
-        print(f"Could not refresh {name} RSS feed: {error}; keeping cached posts.")
-        return
+        return urlsplit(value).scheme in ('https', 'http')
+    except ValueError:
+        return False
 
-    entries = [node for node in root.iter() if local_name(node.tag) in {"item", "entry"}]
-    if not entries:
-        print(f"No posts returned by {name} RSS feed; keeping cached posts.")
-        return
+def clean_html(content):
+    soup = BeautifulSoup(content, 'html.parser')
+    for tag in soup(['script', 'style', 'iframe', 'object', 'embed', 'form', 'input', 'button']):
+        tag.decompose()
+    for tag in soup.find_all(True):
+        for attr in list(tag.attrs):
+            if attr not in ('href', 'src', 'alt', 'title'):
+                del tag[attr]
+        for attr in ('href', 'src'):
+            if tag.get(attr) and not safe_url(tag[attr]):
+                del tag[attr]
+        if tag.name == 'img' and (not tag.get('src') or '/_/stat?' in tag['src']):
+            tag.decompose()
+    return soup
 
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    articles = existing_articles(name)
-    added = 0
-    for entry in entries:
-        fields: dict[str, str] = {}
+def html_to_markdown(content):
+    return markdownify(str(clean_html(content)), heading_style='ATX', bullets='-').strip()
+
+def read_post(path):
+    match = re.match(r'^---\n([\s\S]*?)\n---\n([\s\S]*)$', path.read_text(encoding='utf-8'))
+    if not match:
+        raise ValueError(f'Missing frontmatter: {path.name}')
+    meta = yaml.safe_load(match[1])
+    if not isinstance(meta, dict):
+        raise ValueError(f'Invalid frontmatter: {path.name}')
+    return meta, match[2]
+
+def parse_feed(data):
+    root = ET.fromstring(data)
+    if local_name(root.tag) != 'rss' or root.find('channel') is None:
+        raise ValueError('Expected RSS channel')
+    result, seen = [], set()
+    for entry in root.find('channel').findall('item'):
+        fields, tags = {}, []
         for child in entry:
             key = local_name(child.tag)
-            value = (
-                child.attrib.get("href") or "".join(child.itertext()).strip()
-                if key == "link"
-                else "".join(child.itertext()).strip()
-            )
-            if key in {"encoded", "content", "description", "summary"}:
-                fields.setdefault("body", value)
-                if key == "encoded":
-                    fields["body"] = value
-            elif value:
+            value = ''.join(child.itertext()).strip()
+            if key == 'category':
+                tags.append(value)
+            else:
                 fields[key] = value
+        title, link = fields.get('title', ''), fields.get('link', '')
+        identity = article_key(link)
+        if not title or identity in seen:
+            raise ValueError('Missing title or duplicate feed identifier')
+        seen.add(identity)
+        content = fields.get('encoded') or fields.get('description') or ''
+        if not content.strip():
+            raise ValueError('Missing article content')
+        soup = clean_html(content)
+        body = html_to_markdown(str(soup))
+        if not body:
+            raise ValueError('Empty converted article')
+        if not body.startswith('# '):
+            body = f'# {title}\n\n{body}'
+        link_parts = urlsplit(link)
+        meta = dict(title=title, date=published_date(fields.get('pubDate', '')), tags=list(dict.fromkeys(tags)),
+                    category=classify(tags), description=' '.join(soup.get_text(' ', strip=True).split())[:180] or title,
+                    source='medium', source_id=identity,
+                    original_url=urlunsplit((link_parts.scheme, link_parts.netloc, link_parts.path, '', '')))
+        if fields.get('updated'):
+            meta['updated'] = published_date(fields['updated'])
+        image = soup.find('img', src=True)
+        if image:
+            meta['cover'] = image['src']
+        result.append((meta, body + '\n'))
+    return result
 
-        title = fields.get("title", "Untitled")
-        slug = re.sub(r"-+", "-", re.sub(r"[^a-z0-9]+", "-", title.lower())).strip("-")
-        link = fields.get("link", "")
-        if link and article_key(link) in articles:
-            continue
-        body = html_to_markdown(fields.get("body", ""))
-        if not body.startswith("# "):
-            body = f"# {title}\n\n{body}"
-        date = published_date(fields.get("pubDate") or fields.get("published") or fields.get("updated", ""))
-        byline = f"Published {date} · " if date else ""
-        if link:
-            byline += f"[Read on {name}]({link})"
-        post = f"{body}\n\n---\n\n{byline}\n"
-        (OUTPUT_DIR / f"{name}-{slug or 'post'}.md").write_text(post, encoding="utf-8")
-        added += 1
-        if link:
-            articles.add(article_key(link))
+def sync_feed(name, url):
+    if name != 'medium':
+        raise ValueError('Unsupported source')
+    print('[INFO] Fetching Medium RSS...')
+    with urlopen(Request(url, headers={'User-Agent': 'PortfolioRSS/2.0'}), timeout=20) as response:
+        entries = parse_feed(response.read())
+    existing, slugs = {}, set()
+    for path in OUTPUT_DIR.glob('*.md'):
+        meta, _ = read_post(path)
+        if meta.get('slug') in slugs:
+            raise ValueError('Duplicate existing slug')
+        slugs.add(meta.get('slug'))
+        if meta.get('source') == 'medium':
+            identity = meta.get('source_id')
+            if not re.fullmatch(r'[a-f0-9]{12}', str(identity)) or identity in existing:
+                raise ValueError('Invalid or duplicate existing identifier')
+            existing[identity] = (path, meta)
+    writes = []
+    for imported, body in entries:
+        identity = imported['source_id']
+        if identity in existing:
+            path, old = existing[identity]
+            merged = dict(old)
+            merged.update(imported)
+            # Unavailable metadata stays preserved. Overrides are explicit author-owned fields.
+            merged['category'] = classify(imported['tags'], old.get('category_override'))
+            merged['description'] = old.get('description_override', imported['description'])
+        else:
+            stem = re.sub(r'[^a-z0-9]+', '-', imported['title'].lower()).strip('-')[:100] or 'post'
+            slug = f'{stem}-{identity}'
+            if slug in slugs:
+                raise ValueError('Slug collision')
+            slugs.add(slug)
+            path = OUTPUT_DIR / f'{slug}.md'
+            if path.exists():
+                raise ValueError('Filename collision')
+            merged = dict(imported, slug=slug, featured=False, draft=False)
+        if merged.get('description_override') is not None and (not isinstance(merged['description_override'], str) or not merged['description_override'].strip()):
+            raise ValueError('Invalid description override')
+        if not re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', str(merged.get('slug', ''))):
+            raise ValueError('Invalid slug')
+        if not isinstance(merged.get('featured'), bool) or not isinstance(merged.get('draft'), bool):
+            raise ValueError('Invalid flags')
+        post = '---\n' + yaml.safe_dump(merged, sort_keys=False, allow_unicode=True) + '---\n' + body
+        if path.exists() and path.read_text(encoding='utf-8') == post:
+            print(f'[SKIP] {path.name}')
+        else:
+            writes.append((path, post))
+    # All feed entries and existing identities are validated before any writes.
+    if writes:
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    for path, post in writes:
+        action = 'UPDATE' if path.exists() else 'CREATE'
+        with tempfile.NamedTemporaryFile(mode='w', encoding='utf-8', dir=OUTPUT_DIR, delete=False) as temp:
+            temp.write(post)
+            staged = Path(temp.name)
+        try:
+            staged.replace(path)
+        finally:
+            staged.unlink(missing_ok=True)
+        print(f'[{action}] {path.name}')
+    print(f'[INFO] {len(entries)} articles; {len(writes)} changed.')
 
-    print(f"Added {added} of {len(entries)} post(s) from {name}.")
-
-
-if __name__ == "__main__":
-    for feed_name, feed_url in FEEDS:
-        sync_feed(feed_name, feed_url)
+if __name__ == '__main__':
+    try:
+        username = os.environ.get('MEDIUM_USERNAME', '').lstrip('@')
+        if not re.fullmatch(r'[A-Za-z0-9_-]+', username):
+            raise ValueError('Set MEDIUM_USERNAME to a valid Medium account')
+        sync_feed('medium', f'https://medium.com/feed/@{username}')
+    except Exception as error:
+        print(f'[ERROR] Synchronization failed: {type(error).__name__}: {error}', file=sys.stderr)
+        sys.exit(1)

@@ -1,18 +1,13 @@
+import { posts, blogHref } from '../../blog/catalog';
+import { ArticleView, BlogView } from '../../blog/BlogView';
 import React, { Suspense, useEffect, useState } from 'react';
 import { useFileSystem } from '@/context/FileSystemContext';
 import { Terminal } from 'lucide-react';
 import { CodeHighlighter } from './CodeHighlighter';
 import { MarkdownViewer } from './MarkdownViewer';
 
-// Lazy load feature buffers for performance
-const ChatBuffer = React.lazy(() =>
-  import('@/features/chat/ChatBuffer').then((module) => ({
-    default: module.ChatBuffer,
-  }))
-);
-
 export const EditorArea: React.FC = () => {
-  const { files, activeFileId, getFileType } = useFileSystem();
+  const { files, activeFileId, getFileType, openFile } = useFileSystem();
   const [readerMode, setReaderMode] = useState(false);
   const isMarkdown = Boolean(
     activeFileId && files[activeFileId]?.name.endsWith('.md')
@@ -54,15 +49,26 @@ export const EditorArea: React.FC = () => {
             }
           >
             {activeFileId && files[activeFileId] ? (
-              files[activeFileId].type === 'chat' ? (
-                <div className="absolute inset-0">
-                  <ChatBuffer />
-                </div>
+              activeFileId === 'blog-index' ? (
+                <BlogView posts={posts} href={blogHref} onOpen={openFile} />
+              ) : activeFileId === 'not-found' ? (
+                <section className="blog-view">
+                  <h1>Page not found</h1>
+                  <a href={blogHref()}>Browse articles</a>
+                </section>
               ) : files[activeFileId].name.endsWith('.md') ? (
                 <div
                   className={`markdown-buffer min-h-full ${readerMode ? 'reader-mode' : ''}`}
                 >
-                  <MarkdownViewer content={files[activeFileId].content ?? ''} />
+                  {posts.find((p) => p.fileId === activeFileId) ? (
+                    <ArticleView
+                      post={posts.find((p) => p.fileId === activeFileId)!}
+                    />
+                  ) : (
+                    <MarkdownViewer
+                      content={files[activeFileId].content ?? ''}
+                    />
+                  )}
                 </div>
               ) : (
                 <div className="p-2 md:p-4 min-h-full pb-20">

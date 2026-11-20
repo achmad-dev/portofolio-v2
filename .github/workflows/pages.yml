@@ -1,0 +1,49 @@
+name: Build and deploy Pages
+on:
+  workflow_call:
+    inputs:
+      ref:
+        required: true
+        type: string
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+concurrency:
+  group: portfolio-pages
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install -r scripts/requirements-sync.txt
+      - run: python3 -m unittest discover -s scripts -p 'test_*.py'
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.4.3'
+      - run: bun install --frozen-lockfile --ignore-scripts
+        working-directory: client
+      - run: bun run test && bun run typecheck && bun run lint && bun run build && bun run verify:build
+        working-directory: client
+        env:
+          VITE_BASE_PATH: ${{ vars.VITE_BASE_PATH || '/' }}
+          SITE_URL: ${{ vars.SITE_URL || 'https://achmadalfazari.my.id' }}
+      - uses: actions/configure-pages@v4
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: client/dist
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: portfolio-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/deploy-pages@v4
+        id: deployment

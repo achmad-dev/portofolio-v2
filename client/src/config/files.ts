@@ -1,3 +1,4 @@
+import { posts } from '../blog/catalog';
 import { FileSystemState } from '@/types';
 
 const markdownModules = import.meta.glob('@/content/**/*.md', {
@@ -7,12 +8,14 @@ const markdownModules = import.meta.glob('@/content/**/*.md', {
 });
 
 const files: FileSystemState = {
+  'blog-index': { id: 'blog-index', name: 'Writing & Research', type: 'file' },
+  'not-found': { id: 'not-found', name: 'Page not found', type: 'file' },
   root: {
     id: 'root',
     name: 'root',
     type: 'folder',
     isOpen: true,
-    children: ['content', 'config', 'copilot.chat'],
+    children: ['blog-index', 'content', 'config'],
   },
   content: {
     id: 'content',
@@ -27,12 +30,6 @@ const files: FileSystemState = {
     type: 'folder',
     isOpen: false,
     children: ['config/config.lua'],
-  },
-  'copilot.chat': {
-    id: 'copilot.chat',
-    name: 'copilot.chat',
-    type: 'chat',
-    content: 'AI_CHAT_VIEW',
   },
   'config/config.lua': {
     id: 'config/config.lua',
@@ -78,6 +75,11 @@ for (const [modulePath, content] of Object.entries(markdownModules)) {
   const relativePath = modulePath.split('/content/')[1];
   if (!relativePath) continue;
 
+  if (
+    relativePath.startsWith('blog/') &&
+    !posts.some((p) => p.fileId === relativePath)
+  )
+    continue;
   const parts = relativePath.split('/');
   const filename = parts.pop()!;
   let parentId = parts.length ? '' : 'content';
@@ -102,7 +104,8 @@ for (const [modulePath, content] of Object.entries(markdownModules)) {
     id: fileId,
     name: filename,
     type: 'file',
-    content: content as string,
+    content:
+      posts.find((p) => p.fileId === fileId)?.body ?? (content as string),
   };
   files[parentId].children!.push(fileId);
 }
@@ -117,12 +120,12 @@ for (const node of Object.values(files)) {
 
 // Keep the original explorer's top-level order while showing only real content folders.
 files.root.children = [
+  'blog-index',
   'content',
   ...files.root.children!.filter(
-    (id) => !['content', 'config', 'copilot.chat'].includes(id)
+    (id) => !['blog-index', 'content', 'config'].includes(id)
   ),
   'config',
-  'copilot.chat',
 ];
 
 export const INITIAL_FILES = files;

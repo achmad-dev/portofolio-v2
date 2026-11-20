@@ -1,3 +1,6 @@
+import { updateSeo } from '../blog/seo';
+import { posts, blogHref } from '../blog/catalog';
+import { routeFile } from '../blog/model';
 import React, {
   createContext,
   useContext,
@@ -30,10 +33,13 @@ const FileSystemContext = createContext<FileSystemContextType | undefined>(
 // FileSystemProvider component that provides the file system context to its children
 export const FileSystemProvider = ({ children }: { children: ReactNode }) => {
   const [files, setFiles] = useState<FileSystemState>(INITIAL_FILES);
-  const [openFiles, setOpenFiles] = useState<string[]>(['content/about.md']);
-  const [activeFileId, setActiveFileId] = useState<string | null>(
-    'content/about.md'
+  const initialFile = routeFile(
+    window.location.pathname,
+    posts,
+    import.meta.env.BASE_URL
   );
+  const [openFiles, setOpenFiles] = useState<string[]>([initialFile]);
+  const [activeFileId, setActiveFileId] = useState<string | null>(initialFile);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   useEffect(() => {
@@ -55,12 +61,55 @@ export const FileSystemProvider = ({ children }: { children: ReactNode }) => {
     }));
   };
 
-  const openFile = (fileId: string) => {
+  const selectFile = (fileId: string) => {
     if (!files[fileId] || files[fileId].type === 'folder') return;
     setOpenFiles((prev) => (prev.includes(fileId) ? prev : [...prev, fileId]));
-    setActiveFileId(fileId);
     if (window.innerWidth < 768) setIsSidebarOpen(false);
   };
+
+  const navigateFile = (fileId: string | null) => {
+    const post = posts.find((p) => p.fileId === fileId);
+    const url = post
+      ? blogHref(post.slug)
+      : fileId === 'blog-index'
+        ? blogHref()
+        : import.meta.env.BASE_URL;
+    if (
+      window.location.pathname !== url ||
+      window.history.state?.fileId !== fileId
+    )
+      window.history.pushState({ fileId }, '', url);
+    setActiveFileId(fileId);
+  };
+  const openFile = (fileId: string) => {
+    selectFile(fileId);
+    navigateFile(fileId);
+  };
+  useEffect(() => {
+    const restore = () => {
+      const requested = window.history.state?.fileId;
+      const id =
+        requested && files[requested] && files[requested].type !== 'folder'
+          ? requested
+          : routeFile(
+              window.location.pathname,
+              posts,
+              import.meta.env.BASE_URL
+            );
+      setOpenFiles((prev) => (prev.includes(id) ? prev : [...prev, id]));
+      setActiveFileId(id);
+    };
+    window.addEventListener('popstate', restore);
+    return () => window.removeEventListener('popstate', restore);
+  }, [files]);
+  useEffect(() => {
+    const post = posts.find((p) => p.fileId === activeFileId);
+    updateSeo(
+      post,
+      activeFileId === 'blog-index',
+      activeFileId === 'not-found'
+    );
+  }, [activeFileId]);
 
   const closeFile = (fileId: string) => {
     const newOpenFiles = openFiles.filter((id) => id !== fileId);
@@ -68,9 +117,9 @@ export const FileSystemProvider = ({ children }: { children: ReactNode }) => {
 
     if (activeFileId === fileId) {
       if (newOpenFiles.length > 0) {
-        setActiveFileId(newOpenFiles[newOpenFiles.length - 1]);
+        navigateFile(newOpenFiles[newOpenFiles.length - 1]);
       } else {
-        setActiveFileId(null);
+        navigateFile(null);
       }
     }
   };
@@ -91,7 +140,11 @@ export const FileSystemProvider = ({ children }: { children: ReactNode }) => {
         activeFileId,
         isSidebarOpen,
         setIsSidebarOpen,
-        setActiveFileId,
+        setActiveFileId: (value) => {
+          const next =
+            typeof value === 'function' ? value(activeFileId) : value;
+          navigateFile(next);
+        },
         toggleFolder,
         openFile,
         closeFile,

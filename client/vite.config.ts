@@ -4,11 +4,16 @@ import path from 'path';
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/',
+  base: process.env.VITE_BASE_PATH || '/',
   plugins: [react()],
+  define: {
+    'import.meta.env.VITE_SITE_URL': JSON.stringify(
+      process.env.SITE_URL || 'https://achmadalfazari.my.id'
+    ),
+  },
   resolve: {
     alias: {
-      '@': path.resolve(__dirname, './src'),
+      '@': path.resolve(import.meta.dirname, './src'),
     },
   },
 });

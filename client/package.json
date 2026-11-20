@@ -5,14 +5,15 @@
   "type": "module",
   "scripts": {
     "sync:blog": "python3 ../scripts/sync_medium.py",
-    "predev": "npm run sync:blog",
     "dev": "vite",
-    "prebuild": "npm run sync:blog",
-    "build": "vite build",
+    "build": "vite build && vite build --ssr src/prerender.tsx --outDir .prerender && node .prerender/prerender.js",
     "lint": "eslint .",
     "preview": "vite preview",
     "prepare": "husky",
-    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,md}\""
+    "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx,css,md}\"",
+    "test": "tsx --test tests/*.test.ts",
+    "typecheck": "tsc --noEmit",
+    "verify:build": "tsx tests/verify-build.ts"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -32,11 +33,12 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "react-markdown": "9.0.1",
-    "remark-gfm": "4.0.0"
+    "remark-gfm": "4.0.0",
+    "yaml": "^2.9.1"
   },
   "devDependencies": {
     "@eslint/js": "9.39.4",
-    "@types/node": "25.5.2",
+    "@types/node": "^26.6.6",
     "@types/react": "19.2.14",
     "@types/react-dom": "19.2.3",
     "@vitejs/plugin-react": "6.1.2",
@@ -52,6 +54,7 @@
     "postcss": "8.5.29",
     "prettier": "^3.9.9",
     "tailwindcss": "3.4.19",
+    "tsx": "^4.23.15",
     "typescript": "6.0.2",
     "vite": "8.3.3"
   },

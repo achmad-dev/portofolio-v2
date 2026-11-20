@@ -85,7 +85,11 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
               );
             },
             img({ node, ...props }: any) {
-              const src = props.src as string;
+              const originalSrc = props.src as string;
+              const src =
+                originalSrc?.startsWith('/') && !originalSrc.startsWith('//')
+                  ? `${import.meta.env.BASE_URL}${originalSrc.slice(1)}`
+                  : originalSrc;
               const alt = (props.alt as string) || 'Article image';
               return (
                 <span className="project-image">
@@ -131,7 +135,9 @@ export const MarkdownViewer: React.FC<MarkdownViewerProps> = ({ content }) => {
               return (
                 <a
                   className="text-catppuccin-blue hover:text-catppuccin-sapphire underline decoration-catppuccin-surface2 underline-offset-4 transition-colors"
-                  target="_blank"
+                  target={
+                    /^https?:\/\//.test(props.href || '') ? '_blank' : undefined
+                  }
                   rel="noopener noreferrer"
                   {...props}
                 />

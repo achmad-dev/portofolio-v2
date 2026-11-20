@@ -1,3 +1,19 @@
+---
+title: Eh belajar docker bentaran yuk
+slug: eh-belajar-docker-bentaran-yuk
+description: Image Pernah kepikiran ga sih, kenapa Docker sekarang jadi lingua franca
+  buat infrastructure? Semenjak kemunculannya, Docker sukses mengubah banyak hal di
+  dunia development. Tapi t
+date: '2025-12-23'
+category: DevOps & Cloud
+tags: []
+source: medium
+source_id: b4b706f41b6f
+original_url: https://medium.com/@moonNight1/eh-belajar-docker-bentaran-yuk-b4b706f41b6f
+featured: false
+draft: false
+cover: https://cdn-images-1.medium.com/max/1024/0*bcRsp52IF7GOnWG2
+---
 # Eh belajar docker bentaran yuk
 
 ![Image](https://cdn-images-1.medium.com/max/1024/0*bcRsp52IF7GOnWG2)
