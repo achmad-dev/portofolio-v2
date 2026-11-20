@@ -1,3 +1,4 @@
+import { revealFile } from './revealFile';
 import { CASE_STUDY, caseStudyHref } from '../config/site';
 import { updateSeo } from '../blog/seo';
 import { posts, blogHref } from '../blog/catalog';
@@ -33,11 +34,13 @@ const FileSystemContext = createContext<FileSystemContextType | undefined>(
 
 // FileSystemProvider component that provides the file system context to its children
 export const FileSystemProvider = ({ children }: { children: ReactNode }) => {
-  const [files, setFiles] = useState<FileSystemState>(INITIAL_FILES);
   const initialFile = routeFile(
     window.location.pathname,
     posts,
     import.meta.env.BASE_URL
+  );
+  const [files, setFiles] = useState<FileSystemState>(() =>
+    revealFile(INITIAL_FILES, initialFile)
   );
   const [openFiles, setOpenFiles] = useState<string[]>([initialFile]);
   const [activeFileId, setActiveFileId] = useState<string | null>(initialFile);
@@ -82,6 +85,7 @@ export const FileSystemProvider = ({ children }: { children: ReactNode }) => {
       window.history.state?.fileId !== fileId
     )
       window.history.pushState({ fileId }, '', url);
+    setFiles((prev) => revealFile(prev, fileId));
     setActiveFileId(fileId);
   };
   const openFile = (fileId: string) => {
@@ -100,6 +104,7 @@ export const FileSystemProvider = ({ children }: { children: ReactNode }) => {
               import.meta.env.BASE_URL
             );
       setOpenFiles((prev) => (prev.includes(id) ? prev : [...prev, id]));
+      setFiles((prev) => revealFile(prev, id));
       setActiveFileId(id);
     };
     window.addEventListener('popstate', restore);
